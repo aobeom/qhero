@@ -43,10 +43,13 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div>
-          <input value={mediaURL} onChange={(event) => urlChange(event)} />
-        </div>
-        <div>
-          <button onClick={() => GetImgs()} >Get</button>
+          <input
+            placeholder="mdpr url"
+            value={mediaURL}
+            onChange={(event) => urlChange(event)}
+            className="App-input"
+          />
+          <button onClick={() => GetImgs()} >GET</button>
         </div>
       </header>
       <main className="App-main">
