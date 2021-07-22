@@ -1,40 +1,63 @@
-import logo from './logo.svg';
-import './App.css';
+import './App.css'
 import { useState } from "react"
 
 function App() {
-  const [seed, setSeed] = useState(-1)
-  const GetSeed = () => {
-    fetch("/api/seed", {
+  const [mediaURL, setMediaURL] = useState("")
+  const [mediaData, setMediaData] = useState([])
+
+  const urlChange = (event) => {
+    setMediaURL(event.target.value)
+  }
+
+  const GetImgs = () => {
+    var regex = /http(s)?:\/\/([\w-]+.)+[\w-]+(\/[\w- ./?%&=]*)?/
+
+    if (!regex.test(mediaURL) || mediaURL.indexOf("mdpr.jp") === -1) {
+      alert("URL Error")
+      return false
+    }
+
+    let mediaURLClear = mediaURL.split(" ")
+    let mediaURLNew = mediaURLClear[mediaURLClear.length - 1]
+    let apiurl = "/api/mdpr?url=" + mediaURLNew
+
+    fetch(apiurl, {
       method: 'GET',
       dataType: 'json'
     }).then(res => res.json())
       .then(data => {
         let status = data.status
         if (status === 1) {
-          setSeed(data.data)
+          setMediaData(data.data)
         } else {
-          setSeed(-1)
+          alert(data.message)
         }
       })
       .catch(
         () => {
-          setSeed(-1)
+          alert("Server Error")
         }
       )
   }
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <div><input value={seed} /></div>
         <div>
-          <button onClick={() => GetSeed()} >Get</button>
+          <input value={mediaURL} onChange={(event) => urlChange(event)} />
         </div>
-
+        <div>
+          <button onClick={() => GetImgs()} >Get</button>
+        </div>
       </header>
+      <main className="App-main">
+        {mediaData.map((media, index) => {
+          return <div key={index}>
+            <img src={media} alt="" className='App-result-img' />
+          </div>
+        })}
+      </main>
     </div>
   );
 }
 
-export default App;
+export default App
