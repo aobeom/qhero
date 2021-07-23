@@ -1,19 +1,26 @@
 import './App.css'
 import { useState } from "react"
+import "mini.css"
 
 function App() {
   const [mediaURL, setMediaURL] = useState("")
   const [mediaData, setMediaData] = useState([])
+  const [mediaMsg, setMediaMsg] = useState({ open: false, msg: "" })
+  const [mediaLoading, setMediaLoading] = useState(false)
 
   const urlChange = (event) => {
     setMediaURL(event.target.value)
   }
 
   const GetImgs = () => {
+    setMediaMsg({ open: false, msg: "" })
+    setMediaLoading(true)
+
     var regex = /http(s)?:\/\/([\w-]+.)+[\w-]+(\/[\w- ./?%&=]*)?/
 
     if (!regex.test(mediaURL) || mediaURL.indexOf("mdpr.jp") === -1) {
-      alert("URL Error")
+      setMediaLoading(false)
+      setMediaMsg({ open: true, msg: "URL Error" })
       return false
     }
 
@@ -28,20 +35,24 @@ function App() {
       .then(data => {
         let status = data.status
         if (status === 1) {
+          setMediaLoading(false)
+          setMediaMsg({ open: false, msg: "" })
           setMediaData(data.data)
         } else {
-          alert(data.message)
+          setMediaLoading(false)
+          setMediaMsg({ open: true, msg: data.message })
         }
       })
       .catch(
         () => {
-          alert("Server Error")
+          setMediaLoading(false)
+          setMediaMsg({ open: true, msg: "Server Error" })
         }
       )
   }
   return (
     <div className="App">
-      <header className="App-header">
+      <div className="App-header">
         <div>
           <input
             placeholder="mdpr url"
@@ -49,16 +60,24 @@ function App() {
             onChange={(event) => urlChange(event)}
             className="App-input"
           />
-          <button onClick={() => GetImgs()} >GET</button>
+          <button
+            className="primary"
+            onClick={() => GetImgs()}
+          >
+            GET
+          </button>
         </div>
-      </header>
-      <main className="App-main">
-        {mediaData.map((media, index) => {
-          return <div key={index}>
-            <img src={media} alt="" className='App-result-img' />
-          </div>
-        })}
-      </main>
+      </div>
+      <div className="App-main">
+        {mediaLoading ? <div className="spinner primary"></div> :
+          mediaMsg.open ? <button className="secondary">{mediaMsg.msg}</button > :
+            mediaData.map((media, index) => {
+              return <div key={index}>
+                <img src={media} alt="" className='App-result-img' />
+              </div>
+            })
+        }
+      </div>
     </div>
   );
 }

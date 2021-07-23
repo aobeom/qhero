@@ -1,5 +1,11 @@
+.App {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
 .App-header {
-  padding        : 50px;
+  padding-top    : 50px;
+  padding-bottom : 20px;
   display        : flex;
   flex-direction : column;
   align-items    : center;
@@ -16,7 +22,6 @@
 }
 
 .App-result-img {
-  width         : 90%;
+  max-width     : 90%;
   padding-bottom: 0.2rem;
-  max-width     : 600px;
 }
