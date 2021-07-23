@@ -67,25 +67,27 @@ func filterMdpr(mdprURL string) (imgList []string) {
 	preRes := requests.Get(preURL, preHeader)
 	doc, _ := htmlquery.Parse(strings.NewReader(string(preRes.RawData())))
 	nodes := htmlquery.Find(doc, `//div[@class="p-articleBody"]/a`)
-	apiData := htmlquery.SelectAttr(nodes[0], "data-mdprapp-option")
-	jsonRaw, _ := url.QueryUnescape(apiData)
-	var jsonData map[string]interface{}
-	json.Unmarshal([]byte(jsonRaw), &jsonData)
-	imgURL := APIURL + jsonData["url"].(string)
-	// Img Data
-	apiHeader := minireq.Headers{
-		"model":      APIModel,
-		"mdpr-api":   APIMdprApi,
-		"mdpr-app":   APIMdprApp,
-		"User-Agent": APIUserAgent,
-	}
-	apiRes := requests.Get(imgURL, apiHeader)
-	var imgJson map[string]interface{}
-	json.Unmarshal(apiRes.RawData(), &imgJson)
-	imgData := imgJson["list"]
-	for _, img := range imgData.([]interface{}) {
-		iData := img.(map[string]interface{})
-		imgList = append(imgList, iData["url"].(string))
+	if len(nodes) != 0 {
+		apiData := htmlquery.SelectAttr(nodes[0], "data-mdprapp-option")
+		jsonRaw, _ := url.QueryUnescape(apiData)
+		var jsonData map[string]interface{}
+		json.Unmarshal([]byte(jsonRaw), &jsonData)
+		imgURL := APIURL + jsonData["url"].(string)
+		// Img Data
+		apiHeader := minireq.Headers{
+			"model":      APIModel,
+			"mdpr-api":   APIMdprApi,
+			"mdpr-app":   APIMdprApp,
+			"User-Agent": APIUserAgent,
+		}
+		apiRes := requests.Get(imgURL, apiHeader)
+		var imgJson map[string]interface{}
+		json.Unmarshal(apiRes.RawData(), &imgJson)
+		imgData := imgJson["list"]
+		for _, img := range imgData.([]interface{}) {
+			iData := img.(map[string]interface{})
+			imgList = append(imgList, iData["url"].(string))
+		}
 	}
 	return imgList
 }
@@ -95,8 +97,10 @@ func MDPImg(c *gin.Context) {
 	mdprURL := c.Query("url")
 	// Check URL
 	rule := regexp.MustCompile(`https://mdpr\.jp/*`)
+	rule2 := regexp.MustCompile(`https://mdpr\.jp/photo/*`)
 	result := rule.MatchString(mdprURL)
-	if result {
+	result2 := rule2.MatchString(mdprURL)
+	if result && !result2 {
 		sources := MediaFromDB(mdprURL)
 		if len(sources) != 0 {
 			c.JSON(http.StatusOK, gin.H{
