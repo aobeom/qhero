@@ -3,12 +3,12 @@ import { useState } from "react"
 import "mini.css"
 
 function App() {
-  const [mediaURL, setMediaURL] = useState("")
-  const [mediaData, setMediaData] = useState([])
-  const [mediaMsg, setMediaMsg] = useState({ open: false, msg: "" })
-  const [mediaLoading, setMediaLoading] = useState(false)
+  const [mediaURL, setMediaURL] = useState<string>("")
+  const [mediaData, setMediaData] = useState<any>([])
+  const [mediaMsg, setMediaMsg] = useState<any>({ open: false, msg: "" })
+  const [mediaLoading, setMediaLoading] = useState<boolean>(false)
 
-  const urlChange = (event) => {
+  const urlChange = (event: any) => {
     setMediaURL(event.target.value)
   }
 
@@ -16,7 +16,7 @@ function App() {
     setMediaMsg({ open: false, msg: "" })
     setMediaLoading(true)
 
-    var regex = /http(s)?:\/\/([\w-]+.)+[\w-]+(\/[\w- ./?%&=]*)?/
+    var regex: RegExp = /http(s)?:\/\/([\w-]+.)+[\w-]+(\/[\w- ./?%&=]*)?/
 
     if (!regex.test(mediaURL) || mediaURL.indexOf("mdpr.jp") === -1) {
       setMediaLoading(false)
@@ -24,16 +24,15 @@ function App() {
       return false
     }
 
-    let mediaURLClear = mediaURL.split(" ")
-    let mediaURLNew = mediaURLClear[mediaURLClear.length - 1]
-    let apiurl = "/api/mdpr?url=" + mediaURLNew
+    let mediaURLClear: any = mediaURL.split(" ")
+    let mediaURLNew: string = mediaURLClear[mediaURLClear.length - 1]
+    let apiurl: string = "/api/mdpr?url=" + mediaURLNew
 
     fetch(apiurl, {
       method: 'GET',
-      dataType: 'json'
     }).then(res => res.json())
       .then(data => {
-        let status = data.status
+        let status: number = data.status
         if (status === 1) {
           setMediaLoading(false)
           setMediaMsg({ open: false, msg: "" })
@@ -71,7 +70,7 @@ function App() {
       <div className="App-main">
         {mediaLoading ? <div className="spinner primary"></div> :
           mediaMsg.open ? <button className="secondary">{mediaMsg.msg}</button > :
-            mediaData.map((media, index) => {
+            mediaData.map((media: any, index: number) => {
               return <div key={index}>
                 <img src={media} alt="" className='App-result-img' />
               </div>
